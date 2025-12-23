@@ -24,20 +24,31 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // CORS Configuration
-// CORS Configuration
 app.use(
     cors({
         origin: (origin, callback) => {
-            // Allow no origin (e.g. mobile apps, curl)
+            // Allow no origin (e.g. mobile apps, curl, Postman)
             if (!origin) return callback(null, true);
+
             // Allow any localhost origin for development
             if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
                 return callback(null, true);
             }
-            // Check against configured production origin
-            if (origin === process.env.CLIENT_ORIGIN) {
+
+            // Allow Netlify domains (*.netlify.app)
+            if (origin.endsWith('.netlify.app')) {
                 return callback(null, true);
             }
+
+            // Check against configured production origin
+            if (process.env.CLIENT_ORIGIN && origin === process.env.CLIENT_ORIGIN) {
+                return callback(null, true);
+            }
+
+            // Log rejected origins for debugging
+            console.log(`CORS rejected origin: ${origin}`);
+            console.log(`CLIENT_ORIGIN env var: ${process.env.CLIENT_ORIGIN}`);
+
             callback(new Error('Not allowed by CORS'));
         },
         credentials: true,
