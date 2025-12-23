@@ -342,11 +342,12 @@ ai-interview-simulator/
 
 ## 👨‍💻 Author
 
-**Prudhivi Sai Kiran**
+**Sai Kiran Prudhvi**  
+*Full-Stack & AI Engineer*
+
+> Building intelligent systems that solve real-world problems.
 
 - GitHub: [@prudhivisaikiran](https://github.com/prudhivisaikiran)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Portfolio: [Your Portfolio](https://yourportfolio.com)
 
 ---
 
