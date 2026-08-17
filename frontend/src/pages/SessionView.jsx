@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AlertCircle, Loader2, Bot, ArrowLeft, Send, Download, MonitorPlay, FileText } from 'lucide-react';
+import { Loader2, Bot, ArrowLeft, Send, Download, MonitorPlay, FileText } from 'lucide-react';
 import api from '../services/api';
 import ChatMessage from '../components/session/ChatMessage';
 import FeedbackCard from '../components/session/FeedbackCard';
@@ -48,6 +48,7 @@ const SessionView = () => {
         };
 
         fetchSession();
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- navigate/startSession are stable-enough for this mount-once-per-id effect; adding them risks re-fetch loops
     }, [id]);
 
     useEffect(() => {
@@ -251,7 +252,7 @@ const SessionView = () => {
                                                 </svg>
                                             </div>
                                             <h3 className="text-2xl font-bold text-white mb-2">Interview Completed!</h3>
-                                            <p className="text-slate-400">Great job! Here's your performance summary.</p>
+                                            <p className="text-slate-400">Great job! Here&apos;s your performance summary.</p>
                                         </div>
 
                                         {completionData && (

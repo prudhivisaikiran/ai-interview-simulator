@@ -47,6 +47,7 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- standard useAuth hook co-located with its provider
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {

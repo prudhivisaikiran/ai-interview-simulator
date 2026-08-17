@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, AlertCircle, CheckCircle, Clock, TrendingUp, Trophy, RefreshCw } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, TrendingUp, Trophy, RefreshCw } from 'lucide-react';
 import api from '../../services/api';
 import SkillRadarChart from '../charts/RadarChart';
 
@@ -26,6 +26,7 @@ const AssessmentTab = ({ sessionId, refreshTrigger }) => {
         if (sessionId) {
             fetchAssessment();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchAssessment is redefined each render; only re-run on sessionId/refreshTrigger change
     }, [sessionId, refreshTrigger]); // Refresh when refreshTrigger changes
 
     if (loading) {

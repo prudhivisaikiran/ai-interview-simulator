@@ -6,6 +6,11 @@ if (process.env.OPENAI_API_KEY) {
     openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
         baseURL: process.env.OPENAI_BASE_URL,
+        // The SDK's default timeout is 10 minutes, which would leave a user
+        // stuck mid-interview on any OpenAI slowdown. Fail in 30s instead so
+        // the app can show a retry/error state.
+        timeout: 30 * 1000,
+        maxRetries: 2,
     });
 }
 
@@ -79,7 +84,9 @@ export const generateInterviewResponse = async ({
         }
 
         const completion = await openai.chat.completions.create({
-            model: process.env.AI_MODEL || "gpt-4-turbo-preview", // or gpt-3.5-turbo if 4o-mini not available
+            // gpt-4-turbo-preview is deprecated; gpt-5-mini is a current,
+            // cost-efficient default. Override via AI_MODEL env var.
+            model: process.env.AI_MODEL || "gpt-5-mini",
             messages: messages,
             response_format: { type: "json_object" },
             temperature: 0.7,

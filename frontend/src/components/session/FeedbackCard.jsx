@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lightbulb, CheckCircle, BarChart2 } from 'lucide-react';
+import { Lightbulb, CheckCircle } from 'lucide-react';
 
 const ScoreBadge = ({ label, score, colorClass }) => (
     <div className="flex flex-col items-center">

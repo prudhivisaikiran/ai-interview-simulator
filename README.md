@@ -269,11 +269,20 @@ JWT_ACCESS_SECRET=your_access_secret
 JWT_ACCESS_EXPIRES_IN=15m
 JWT_REFRESH_SECRET=your_refresh_secret
 JWT_REFRESH_EXPIRES_IN=7d
-OPENAI_API_KEY=your_openrouter_key
-OPENAI_BASE_URL=https://openrouter.ai/api/v1
-AI_MODEL=openai/gpt-4o-mini
+
+# Direct OpenAI (default):
+OPENAI_API_KEY=your_openai_key
+AI_MODEL=gpt-5-mini
+
+# OR, to route through OpenRouter instead, uncomment and use OpenRouter's
+# provider-prefixed model names (e.g. "openai/gpt-4o-mini"):
+# OPENAI_API_KEY=your_openrouter_key
+# OPENAI_BASE_URL=https://openrouter.ai/api/v1
+# AI_MODEL=openai/gpt-4o-mini
+
 NODE_ENV=development
 ```
+
 
 **Frontend (.env):**
 ```env
@@ -328,7 +337,48 @@ ai-interview-simulator/
 
 ---
 
-## 🎯 Future Enhancements
+## 🚢 Deployment Runbook
+
+This project deploys as three independent pieces: **Netlify** (frontend), **Render** (backend), **MongoDB Atlas** (database). This is the correct, appropriately simple architecture for this app's size — no migration needed.
+
+### 1. Database — MongoDB Atlas
+1. Create a free/shared cluster at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas).
+2. Database Access → add a user with a strong generated password.
+3. Network Access → add `0.0.0.0/0` (Render uses dynamic IPs) or Render's specific egress IPs if you're on a paid Atlas tier that supports IP lists.
+4. Copy the connection string (`mongodb+srv://...`) — this is your `MONGO_URI`.
+5. Atlas → Backup: enable Cloud Backup (paid tiers) or set a manual export schedule (`mongodump` on a cron) if staying on the free tier, which has **no automated backups**.
+
+### 2. Backend — Render
+1. New → Web Service → connect the `ai-interview-simulator` repo, root directory `backend`.
+2. Build command: `npm install`. Start command: `npm start`.
+3. Environment → add these variables (values only in Render's dashboard, never in git):
+   `MONGO_URI`, `JWT_ACCESS_SECRET`, `JWT_ACCESS_EXPIRES_IN`, `JWT_REFRESH_SECRET`, `JWT_REFRESH_EXPIRES_IN`, `OPENAI_API_KEY`, `AI_MODEL`, `CLIENT_ORIGIN` (your Netlify URL), `NODE_ENV=production`.
+   Generate `JWT_ACCESS_SECRET`/`JWT_REFRESH_SECRET` locally with `openssl rand -base64 48` — never reuse example values.
+4. Render's free tier sleeps after inactivity (cold start delay on the next request) — acceptable for a demo, not for "always on"; upgrade to a paid instance if you need that.
+5. After deploy, verify: `https://<your-render-app>.onrender.com/health` returns `{"status":"ok"}`.
+
+### 3. Frontend — Netlify
+1. New site from Git → same repo, base directory `frontend`, build command `npm run build`, publish directory `frontend/dist`.
+2. Environment variable: `VITE_API_URL=https://<your-render-app>.onrender.com/api`.
+3. Deploy, then open the site and confirm registration/login work end-to-end (this exercises frontend → backend → Atlas in one flow).
+4. Note your final Netlify **production** domain (not a deploy-preview URL with a random hash) and set it as `CLIENT_ORIGIN` back on Render, then redeploy the backend so CORS allows it.
+
+### Rollback
+- **Render:** Dashboard → Deploys tab → pick a previous successful deploy → "Redeploy".
+- **Netlify:** Dashboard → Deploys tab → pick a previous deploy → "Publish deploy".
+- Both keep prior build artifacts, so rollback is a click, not a rebuild.
+
+## 🛟 Recovery Plan (if this breaks 6 months from now)
+
+1. **Repo:** `github.com/prudhivisaikiran/ai-interview-simulator` — clone it, this README has the full setup.
+2. **Hosting:** Render (backend) + Netlify (frontend) — check both dashboards for build/deploy failure logs first.
+3. **Database:** MongoDB Atlas — check cluster status; free-tier clusters can be auto-paused after long inactivity and need manual resume.
+4. **Required env vars:** listed above — re-generate JWT secrets and re-enter the OpenAI/OpenRouter key if rotated or expired.
+5. **Redeploy:** push to `main` (both Render and Netlify auto-deploy on push if connected to GitHub), or trigger manually from each dashboard.
+6. **Health check:** `GET /health` on the Render URL should return `200`. If it doesn't, check Render's live logs for the exact error before changing anything.
+7. **Common failure causes to check first:** OpenAI/OpenRouter API key expired or billing lapsed; Atlas free-tier cluster paused; Render free-tier service spun down (just needs a request to wake, ~30–60s); `CLIENT_ORIGIN` mismatch after a Netlify domain change (breaks CORS with a clear rejected-origin log line on the backend).
+
+
 
 - [ ] Voice-based interviews with speech recognition
 - [ ] Video recording for body language analysis

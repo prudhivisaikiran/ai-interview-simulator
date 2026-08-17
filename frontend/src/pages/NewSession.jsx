@@ -69,7 +69,7 @@ const NewSession = () => {
             <div className="card max-w-2xl mx-auto">
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold text-white mb-2">Configure Your Interview</h1>
-                    <p className="text-slate-400">Customize the AI interviewer's persona and difficulty level.</p>
+                    <p className="text-slate-400">Customize the AI interviewer&apos;s persona and difficulty level.</p>
                 </div>
 
                 {error && (

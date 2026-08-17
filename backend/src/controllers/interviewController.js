@@ -210,9 +210,6 @@ export const answerTurn = catchAsync(async (req, res, next) => {
     // 6. CRITICAL: Count questions BEFORE deciding to generate next question
     const qCount = await getQuestionCount(session._id);
 
-    // Temporary debug log (remove after verification)
-    console.log(`[DEBUG] Session ${session._id}: maxQuestions=${session.maxQuestions}, qCount=${qCount}`);
-
     // Check if we've reached the question limit
     const shouldComplete = session.maxQuestions !== null && qCount >= session.maxQuestions;
 
